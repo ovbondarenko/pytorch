@@ -406,6 +406,7 @@ void TensorIterator::compute_types(const TensorIteratorConfig& config) {
                                    op.tensor.options().dtype(common_dtype_),
                                    LEGACY_CONTIGUOUS_MEMORY_FORMAT);
         op.current_dtype = common_dtype_;
+        op.target_dtype = common_dtype_;
     }
 
     // Promotes inputs by creating temporaries of the correct dtype
@@ -413,6 +414,7 @@ void TensorIterator::compute_types(const TensorIteratorConfig& config) {
         op.original_tensor = op.tensor;
         op.tensor = op.tensor.to(common_dtype_);
         op.current_dtype = common_dtype_;
+        op.target_dtype = common_dtype_;
       }
     }
   }
@@ -854,6 +856,7 @@ TensorIterator TensorIterator::comparison_op(Tensor& out, const Tensor& a,
     .add_input(b)
     .allow_cpu_scalars(true)
     .promote_inputs_to_common_dtype(true)
+    .cast_common_dtype_to_outputs(true)
     .build();
 }
 

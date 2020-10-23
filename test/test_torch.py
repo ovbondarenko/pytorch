@@ -3889,6 +3889,18 @@ tensor([[[1.+1.j, 1.+1.j, 1.+1.j,  ..., 1.+1.j, 1.+1.j, 1.+1.j],
                        torch.logical_and, torch.logical_or, torch.logical_xor]:
                 self.assertEqual(op(torch.tensor([True]), torch.tensor([False])).dtype, torch.bool)
 
+        def test_out_comparison_ops_can_type_promotion_and_broadcasting(self):
+            # issue #42660
+            for op in [torch.lt, torch.le, torch.gt, torch.ge, torch.eq, torch.ne,
+                       torch.logical_and, torch.logical_or, torch.logical_xor]:
+                input1_16 = torch.ones(2, dtype=torch.bfloat16)
+                input2_32 = torch.ones(1, dtype=torch.float32)
+                output_64 = torch.zeros(1, dtype=torch.float64)
+
+                op(input1_16, input2_32, out=output_64)
+                self.assertEqual(out.dtype, torch.float64)
+                self.assertEqual(out.shape, (2,))
+
         def test_inplace_comparison_ops_require_inputs_have_same_dtype(self):
             with self.assertRaisesRegex(RuntimeError, 'Expected object of scalar type'):
                 for op in ['lt_', 'le_', 'gt_', 'ge_', 'eq_', 'ne_', 'logical_xor_', 'logical_and_', 'logical_or_']:
